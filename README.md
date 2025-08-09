@@ -61,10 +61,15 @@ No Backend: This app runs entirely in your web browser. It doesn't save your inf
 
 # Screenshots (Add at least 3)
 <img width="3188" height="1202" alt="frame (3)" src="ss/home.png" />
+This is the home page
 <img width="3188" height="1202" alt="frame (3)" src="ss/mood analysis.png" />
+The mood analysis page
 <img width="3188" height="1202" alt="frame (3)" src="ss/player.png" />
+Original player
 <img width="3188" height="1202" alt="frame (3)" src="ss/player2.png" />
+Prank player
 <img width="3188" height="1202" alt="frame (3)" src="ss/suggestion.png" />
+Limited "AI" SUGGESTIONS
 
 # Diagrams
 <img width="3188" height="1202" alt="frame (3)" src="images/diagram.png" />

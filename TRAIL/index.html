@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SeriousMood™ Music Player</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root {
+      --bg:#0f172a;
+      --card:#1f2a44;
+      --radius:12px;
+      --shadow:0 20px 40px -10px rgba(0,0,0,0.5);
+      --accent:#6366f1;
+      --text:#f0f7ff;
+      font-family: system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      background: linear-gradient(135deg,#0f172a 0%,#1e2e5e 80%);
+      color: var(--text);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      gap:1rem;
+      padding:1.5rem;
+    }
+    .container{
+      max-width:1000px;
+      margin:0 auto;
+      display:grid;
+      grid-template-columns:2fr 1fr;
+      gap:1.5rem;
+    }
+    .card{
+      background: var(--card);
+      border-radius: var(--radius);
+      padding:1.5rem;
+      position:relative;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .pill{
+      display:inline-block;
+      padding:4px 12px;
+      background: rgba(255,255,255,0.08);
+      border-radius:999px;
+      font-size:12px;
+      margin-right:6px;
+    }
+    h1{margin-top:0;font-size:1.75rem;}
+    button{
+      background: var(--accent);
+      border:none;
+      padding:10px 18px;
+      border-radius:8px;
+      cursor:pointer;
+      color:#fff;
+      font-weight:600;
+      transition:filter .2s;
+    }
+    button:hover{filter:brightness(1.1);}
+    .mood-buttons{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:12px;
+    }
+    .progress{
+      background: rgba(255,255,255,0.08);
+      border-radius:6px;
+      height:12px;
+      position:relative;
+      overflow:hidden;
+    }
+    .bar{
+      height:100%;
+      border-radius:6px;
+      transition:width .5s ease;
+      background: var(--accent);
+      position:relative;
+    }
+    .small{font-size:0.85rem;}
+    .flex{display:flex;gap:12px;align-items:center;}
+    .analytics{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .fake-badge{
+      background: #10b981;
+      padding:6px 14px;
+      border-radius:999px;
+      font-size:12px;
+      display:inline-block;
+    }
+    .history{max-height:220px;overflow:auto;margin-top:6px;}
+    .history-item{
+      background: rgba(255,255,255,0.03);
+      padding:8px 12px;
+      border-radius:8px;
+      margin-bottom:6px;
+      display:flex;
+      justify-content:space-between;
+      font-size:0.9rem;
+    }
+    .loader{
+      display:inline-block;
+      width:14px;
+      height:14px;
+      border:3px solid rgba(255,255,255,0.3);
+      border-top-color:#fff;
+      border-radius:50%;
+      animation: spin .8s linear infinite;
+      vertical-align:middle;
+      margin-right:6px;
+    }
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .card-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:12px;
+    }
+    .song-info{
+      display:flex;
+      gap:14px;
+      align-items:center;
+    }
+    .cover{
+      width:90px;
+      height:90px;
+      background: linear-gradient(135deg,var(--accent),#a78bfa);
+      border-radius:12px;
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:700;
+      font-size:0.75rem;
+      text-align:center;
+      color:#fff;
+    }
+    .fake-chart{
+      background: rgba(255,255,255,0.05);
+      padding:8px;
+      border-radius:8px;
+      position:relative;
+      overflow:hidden;
+    }
+    .toggle{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .pill-small{
+      background: rgba(255,255,255,0.1);
+      padding:4px 10px;
+      border-radius:6px;
+      font-size:10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- Left: Mood Detection + Playback -->
+    <div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="pill">Session ID: <strong id="session">A1B2-C3D4-E5F6</strong></div>
+            <h1>Emotion Insight</h1>
+          </div>
+          <div class="pill-small">DeepMood™ v3.2</div>
+        </div>
+
+        <p class="small">Simulated mood analysis from webcam and microexpression engine. (No real data collected.)</p>
+
+        <div class="mood-buttons" id="mood-buttons">
+          <!-- moods injected here -->
+        </div>
+
+        <div style="margin:12px 0;">
+          <button id="detect-btn">Detect Mood</button>
+          <span id="detect-status" style="margin-left:10px;"></span>
+        </div>
+
+        <div class="fake-chart" style="margin-top:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div><strong>Detected Mood:</strong> <span id="detected-mood">—</span></div>
+            <div class="fake-badge" id="confidence-badge">Confidence: —</div>
+          </div>
+          <div style="margin-top:8px;">
+            <div class="small">Mood distribution</div>
+            <div style="display:grid;gap:6px;margin-top:6px;" id="distribution">
+              <!-- bars here -->
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; display:flex; gap:20px; align-items:center;">
+          <div class="cover">Cover Art<br><span style="font-size:10px;">Mood Mix</span></div>
+          <div style="flex:1;">
+            <div class="song-info">
+              <div>
+                <div style="font-size:1.1rem;font-weight:600;">Never Gonna Give You Up</div>
+                <div class="small">Artist: Rick Astley</div>
+                <div class="small">Album: Mood Mix Vol. 1</div>
+              </div>
+            </div>
+            <div style="margin-top:10px;">
+              <div class="progress">
+                <div class="bar" id="progress-bar" style="width:0%"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-top:4px;">
+                <div id="current-time">0:00</div>
+                <div id="duration">3:33</div>
+              </div>
+              <div style="margin-top:8px;">
+                <button id="play-btn">Play</button>
+                <button id="pause-btn" style="margin-left:6px;">Pause</button>
+              </div>
+              <div class="small" style="margin-top:6px;">Mood-Pairing Score: <strong id="pairing-score">97%</strong></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Analytics summary -->
+      <div class="card" style="margin-top:16px;">
+        <div class="card-header">
+          <div>
+            <h2>Session Analytics</h2>
+          </div>
+          <div class="pill-small">Updated just now</div>
+        </div>
+
+        <div class="analytics">
+          <div class="flex">
+            <div style="flex:1;">
+              <div class="small">Mood Consistency</div>
+              <div class="progress" style="margin-top:4px;">
+                <div class="bar" id="consistency-bar" style="width:85%"></div>
+              </div>
+              <div class="small" style="margin-top:2px;">Score: 85%</div>
+            </div>
+            <div style="flex:1;">
+              <div class="small">Emotional Trend</div>
+              <div class="progress" style="margin-top:4px;">
+                <div class="bar" id="trend-bar" style="width:60%"></div>
+              </div>
+              <div class="small" style="margin-top:2px;">Stability: Moderate</div>
+            </div>
+          </div>
+
+          <div style="margin-top:12px;">
+            <div class="small">Detection History</div>
+            <div class="history" id="history">
+              <!-- history entries -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Right sidebar: Settings / Extras -->
+    <div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2>Model Control</h2>
+          </div>
+          <div class="pill-small">Advanced</div>
+        </div>
+
+        <div class="toggle">
+          <label><input type="checkbox" id="deep-toggle" checked/> Enable DeepMood™ Analysis</label>
+        </div>
+        <div style="margin-top:12px;">
+          <div class="small">Sensitivity</div>
+          <input type="range" id="sensitivity" min="1" max="10" value="7" />
+        </div>
+
+        <div style="margin-top:20px;">
+          <div class="small">System Insights</div>
+          <div style="margin-top:6px;">
+            <div class="pill">Inference Latency: 267ms</div>
+            <div class="pill">Model Version: v3.2.1-beta</div>
+            <div class="pill">Session Token: <strong id="token">9f8e7d6c</strong></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <div class="small">User Tips</div>
+          <ul style="padding-left:16px;">
+            <li>Ensure good lighting for “best” detection.</li>
+            <li>Keep face centered in webcam (simulated).</li>
+            <li>Refresh to reset session.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Hidden audio -->
+  <audio id="audio" src="rickroll.mp3" preload="auto"></audio>
+
+  <script>
+    const moods = ["Happy", "Sad", "Stressed", "Calm", "Energetic", "Bored", "Romantic", "Focused"];
+    const moodButtons = document.getElementById("mood-buttons");
+    const detectedMoodEl = document.getElementById("detected-mood");
+    const distributionEl = document.getElementById("distribution");
+    const confidenceBadge = document.getElementById("confidence-badge");
+    const historyEl = document.getElementById("history");
+    const pairingScoreEl = document.getElementById("pairing-score");
+    const consistencyBar = document.getElementById("consistency-bar");
+    const trendBar = document.getElementById("trend-bar");
+    const progressBar = document.getElementById("progress-bar");
+    const currentTimeEl = document.getElementById("current-time");
+    const durationEl = document.getElementById("duration");
+    const playBtn = document.getElementById("play-btn");
+    const pauseBtn = document.getElementById("pause-btn");
+    const audio = document.getElementById("audio");
+    const detectBtn = document.getElementById("detect-btn");
+    const detectStatus = document.getElementById("detect-status");
+
+    // Populate mood buttons
+    moods.forEach(m => {
+      const btn = document.createElement("button");
+      btn.textContent = m;
+      btn.style.flex = "1 1 40%";
+      btn.onclick = () => simulateDetection(m);
+      moodButtons.appendChild(btn);
+    });
+
+    // Fake mood distribution generator
+    function makeDistribution(selected) {
+      distributionEl.innerHTML = "";
+      const base = moods.map(m => {
+        const weight = m === selected ? 0.6 + Math.random()*0.2 : Math.random()*0.2;
+        return { mood: m, weight };
+      });
+      const total = base.reduce((s, o) => s + o.weight, 0);
+      base.forEach(o => {
+        const pct = Math.round((o.weight / total) * 100);
+        const row = document.createElement("div");
+        row.innerHTML = `
+          <div style="display:flex;justify-content:space-between;font-size:11px;">
+            <div>${o.mood}</div>
+            <div>${pct}%</div>
+          </div>
+          <div class="progress" style="margin-top:4px;">
+            <div class="bar" style="width:${pct}%;"></div>
+          </div>
+        `;
+        distributionEl.appendChild(row);
+      });
+    }
+
+    // Simulate mood detection & update UI
+    function simulateDetection(moodOverride=null) {
+      detectStatus.innerHTML = '<span class="loader"></span>Analyzing...';
+      // fake latency
+      setTimeout(() => {
+        // choose mood (override if provided)
+        const chosen = moodOverride || moods[Math.floor(Math.random()*moods.length)];
+        const confidence = Math.floor(70 + Math.random()*25); // 70-95%
+        detectedMoodEl.textContent = chosen;
+        confidenceBadge.textContent = `Confidence: ${confidence}%`;
+        pairingScoreEl.textContent = `${90 + Math.floor(Math.random()*10)}%`;
+        makeDistribution(chosen);
+        // update history
+        const entry = document.createElement("div");
+        entry.className = "history-item";
+        const timestamp = new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+        entry.innerHTML = `
+          <div><strong>${chosen}</strong> detected at ${timestamp}</div>
+          <div>${confidence}%</div>
+        `;
+        historyEl.prepend(entry);
+        // Update consistency/trend randomly
+        consistencyBar.style.width = `${75 + Math.floor(Math.random()*20)}%`;
+        trendBar.style.width = `${50 + Math.floor(Math.random()*30)}%`;
+        detectStatus.textContent = '';
+      }, 1400);
+    }
+
+    // Playback controls
+    playBtn.onclick = () => {
+      audio.play();
+    };
+    pauseBtn.onclick = () => audio.pause();
+
+    audio.ontimeupdate = () => {
+      const cur = audio.currentTime;
+      const dur = audio.duration || 213; // fallback 3:33 = 213s
+      const pct = (cur / dur) * 100;
+      progressBar.style.width = `${pct}%`;
+      const fmt = t => {
+        const m = Math.floor(t/60);
+        const s = Math.floor(t%60).toString().padStart(2,'0');
+        return `${m}:${s}`;
+      };
+      currentTimeEl.textContent = fmt(cur);
+      durationEl.textContent = fmt(dur);
+    };
+
+    // Initial fake detection
+    simulateDetection("Calm");
+
+    // Detect button triggers random
+    detectBtn.addEventListener("click", () => simulateDetection());
+  </script>
+</body>
+</html>

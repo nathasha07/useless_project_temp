@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moodify - Your Mood, Your Music</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Comic Neue -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Comic Neue', cursive; /* Applied new font */
+            background-color: #898AC4; /* Darkest blue/lavender */
+            color: #FFF2E0; /* Lightest creamy white for text */
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            display: flex; /* Use flexbox for main layout */
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 250px; /* Fixed width for the sidebar */
+            background-color: #898AC4; /* Darkest blue/lavender, matching body */
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            border-right: 1px solid #A2AADB; /* Medium blue/lavender border */
+        }
+
+        .sidebar-nav-btn {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            font-weight: 700; /* Explicitly bolder for navigation */
+            color: #FFF2E0; /* Lightest creamy white */
+            transition: background-color 0.2s, color 0.2s;
+            cursor: pointer;
+        }
+
+        .sidebar-nav-btn:hover {
+            background-color: #A2AADB; /* Medium blue/lavender for hover */
+            color: #898AC4; /* Darkest blue/lavender on hover */
+        }
+
+        .sidebar-nav-btn.active {
+            background-color: #C0C9EE; /* Light blue/lavender for active state */
+            color: #898AC4; /* Darkest blue/lavender for active text */
+        }
+
+        .sidebar-nav-btn svg {
+            margin-right: 12px;
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Main Content Area Styling */
+        .main-content {
+            flex-grow: 1; /* Takes up remaining space */
+            padding: 20px;
+            overflow-y: auto; /* Enable scrolling for content */
+            background-color: #898AC4; /* Main content background */
+            display: flex;
+            justify-content: center; /* Center the card within the main content */
+            align-items: flex-start; /* Align card to the top */
+        }
+
+        /* Card container styling */
+        .card-container {
+            background-color: #A2AADB; /* Medium blue/lavender for card */
+            padding: 32px;
+            border-radius: 1rem; /* rounded-xl */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+            max-width: 44rem; /* Slightly wider for more content */
+            width: 100%;
+            border: 1px solid #C0C9EE; /* Light blue/lavender border */
+            margin-top: 20px; /* Space from top */
+        }
+
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #A2AADB;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #C0C9EE;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FFF2E0;
+        }
+
+        /* Custom styling for range input (progress bar and volume) */
+        input[type="range"] {
+            /* -webkit-appearance: none; */
+            width: 100%;
+            height: 8px;
+            background: #C0C9EE; /* Light blue/lavender for track */
+            border-radius: 50px; /* More rounded */
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+
+        input[type="range"]:hover {
+            opacity: 1;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #FFF2E0; /* Lightest creamy white for thumb */
+            cursor: pointer;
+            box-shadow: 0 0 2px rgba(0,0,0,0.5);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #FFF2E0; /* Lightest creamy white for thumb */
+            cursor: pointer;
+            box-shadow: 0 0 2px rgba(0,0,0,0.5);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column; /* Stack sidebar and content on small screens */
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                flex-direction: row; /* Make nav items horizontal */
+                justify-content: space-around;
+                border-right: none;
+                border-bottom: 1px solid #A2AADB;
+                padding: 10px;
+            }
+            .sidebar-logo-container { /* Hide logo on mobile for space */
+                display: none;
+            }
+            .sidebar-nav-btn {
+                flex-grow: 1;
+                margin-bottom: 0;
+                justify-content: center;
+                padding: 10px;
+            }
+            .sidebar-nav-btn svg {
+                display: none; /* Hide icons on mobile nav for space */
+            }
+            .main-content {
+                padding: 10px;
+            }
+            .card-container {
+                padding: 20px;
+                margin-top: 10px;
+            }
+        }
+
+        /* Message Box Specific Styles (MODIFIED for direct display control) */
+        #message-box {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: flex; /* Initially flex, will be set to 'none' when hidden */
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+            transition: opacity 0.3s ease; /* Only transition opacity */
+        }
+
+        /* This class will be added/removed by JS to control visibility */
+        #message-box.hidden-by-js {
+            display: none; /* Explicitly hide */
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <!-- Logo Placeholder -->
+        <div class="sidebar-logo-container mb-8 text-center">
+            <img src="images/logo.png" alt="Moodify Logo" class="mx-auto rounded-md shadow-md">
+        </div>
+
+        <nav>
+            <button id="nav-home" class="sidebar-nav-btn active">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2 2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Home
+            </button>
+            <button id="nav-browse" class="sidebar-nav-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                Browse
+            </button>
+            <button id="nav-mood-analysis" class="sidebar-nav-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l3-3m0 0l3 3m-3-3v14m-10 0H3a2 2 0 01-2-2V7a2 2 0 012-2h3c3.929 0 7 3.071 7 7v1m-2 2h2m-6 0H9" />
+                </svg>
+                Mood Analysis
+            </button>
+            <button id="nav-contact" class="sidebar-nav-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                Contact
+            </button>
+            <button id="nav-login" class="sidebar-nav-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
+                Login
+            </button>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Content for each section will be displayed here -->
+
+        <!-- Home Page Section -->
+        <div id="home-page-section" class="card-container text-center">
+            <h2 class="text-3xl font-bold text-[#FFF2E0] mb-6">Welcome to Moodify!</h2>
+            <p class="text-lg text-white mb-6 font-semibold">Your personal sanctuary for music discovery, tailored to your every emotion. Let's find your perfect sound.</p>
+            <button id="go-to-mood-analysis-btn" class="bg-[#C0C9EE] hover:bg-[#A2AADB] text-[#898AC4] font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#C0C9EE] focus:ring-opacity-75">
+                Start Mood Analysis
+            </button>
+        </div>
+
+        <!-- Browse Page Section (Placeholder) -->
+        <div id="browse-page-section" class="card-container hidden">
+            <h2 class="text-3xl font-bold text-[#FFF2E0] mb-6">Explore Genres & Moods</h2>
+            <p class="text-lg text-white mb-6 font-semibold">Dive into curated playlists and trending tracks based on various genres and moods.</p>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div class="bg-[#A2AADB] p-4 rounded-lg text-center text-white font-bold">Chill Lo-Fi</div>
+                <div class="bg-[#A2AADB] p-4 rounded-lg text-center text-white font-bold">Energetic Pop</div>
+                <div class="bg-[#A2AADB] p-4 rounded-lg text-center text-white font-bold">Relaxing Jazz</div>
+                <div class="bg-[#A2AADB] p-4 rounded-lg text-center text-white font-bold">Focus Ambient</div>
+                <div class="bg-[#A2AADB] p-4 rounded-lg text-center text-white font-bold">Workout Hits</div>
+                <div class="bg-[#A2AADB] p-4 rounded-lg text-center text-white font-bold">Deep House</div>
+            </div>
+            <p class="text-sm text-white mt-6 font-semibold">More categories coming soon to enhance your Moodify experience!</p>
+        </div>
+
+        <!-- Mood Analysis Section -->
+        <div id="mood-analysis-page-section" class="card-container text-center hidden">
+            <h2 class="text-3xl font-bold text-[#FFF2E0] mb-6">Analyze Your Mood</h2>
+            <p class="text-xl font-semibold mb-6 text-white">How are you feeling today?</p>
+            <div id="mood-buttons-container" class="grid grid-cols-2 gap-4 mb-6">
+                <button class="mood-btn bg-[#A2AADB] hover:bg-[#C0C9EE] text-white hover:text-[#898AC4] font-bold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#C0C9EE] focus:ring-opacity-75" data-mood="Happy">Happy 😊</button>
+                <button class="mood-btn bg-[#A2AADB] hover:bg-[#C0C9EE] text-white hover:text-[#898AC4] font-bold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#C0C9EE] focus:ring-opacity-75" data-mood="Relaxed">Relaxed 😌</button>
+                <button class="mood-btn bg-[#A2AADB] hover:bg-[#C0C9EE] text-white hover:text-[#898AC4] font-bold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#C0C9EE] focus:ring-opacity-75" data-mood="Energetic">Energetic 🚀</button>
+                <button class="mood-btn bg-[#A2AADB] hover:bg-[#C0C9EE] text-white hover:text-[#898AC4] font-bold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#C0C9EE] focus:ring-opacity-75" data-mood="Sad">Sad 😔</button>
+                <button class="mood-btn bg-[#A2AADB] hover:bg-[#C0C9EE] text-white hover:text-[#898AC4] font-bold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#C0C9EE] focus:ring-opacity-75" data-mood="Neutral">Neutral 😐</button>
+                <button class="mood-btn bg-[#A2AADB] hover:bg-[#C0C9EE] text-white hover:text-[#898AC4] font-bold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#C0C9EE] focus:ring-opacity-75" data-mood="Anxious">Anxious 😬</button>
+            </div>
+            <p class="text-sm text-white font-semibold">Select a mood to begin your personalized experience.</p>
+
+            <!-- Mood Analysis Spinner/Status inside Mood Analysis Page -->
+            <div id="mood-analysis-processing-section" class="text-center mt-8 hidden">
+                <p id="mood-status" class="text-xl font-bold mb-4 text-white">Analyzing your mood...</p>
+                <div id="loading-spinner" class="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-[#C0C9EE] mx-auto"></div>
+            </div>
+        </div>
+
+
+        <!-- Music Player Section -->
+        <div id="music-player-page-section" class="card-container hidden">
+            <h2 class="text-3xl font-bold text-[#FFF2E0] mb-6 text-center">Your Mood Match!</h2>
+            <!-- Album Art -->
+            <div class="mb-6 flex justify-center">
+                <img id="album-art" src="images/alt.png" alt="Album Art" class="rounded-lg shadow-xl w-64 h-64 object-cover">
+            </div>
+
+            <!-- Song Information -->
+            <div class="text-center mb-4">
+                <h3 id="song-title" class="text-3xl font-bold text-white mb-1"></h3>
+                <p id="song-artist" class="text-xl text-white font-semibold"></p>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="mb-4">
+                <input type="range" id="progress-bar" value="0" min="0" max="100" class="w-full">
+                <div class="flex justify-between text-sm text-white mt-1 font-semibold">
+                    <span id="current-time">0:00</span>
+                    <span id="total-duration">0:00</span>
+                </div>
+            </div>
+
+            <!-- Playback Controls -->
+            <div class="flex justify-center items-center space-x-6 mb-8">
+                <button id="prev-btn" class="text-white hover:text-[#FFF2E0] transition duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <button id="play-pause-btn" class="bg-[#C0C9EE] hover:bg-[#A2AADB] text-[#898AC4] font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#C0C9EE] focus:ring-opacity-75">
+                    <span id="play-icon">▶️ Play</span>
+                    <span id="pause-icon" class="hidden">⏸️ Pause</span>
+                </button>
+                <button id="next-btn" class="text-white hover:text-[#FFF2E0] transition duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM10.555 7.168A1 1 0 0012 8v4a1 1 0 00-1.555.832l-3-2a1 1 0 000-1.664l3-2z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Volume Control -->
+            <div class="flex items-center space-x-3 mb-8">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1V9a1 1 0 011-1h1.586l4.707-4.707C10.923 3.647 11.5 4.101 11.5 5v14c0 .899-.577 1.353-1.207.793L5.586 15z" />
+                </svg>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" class="flex-grow">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a1 1 0 01-1-1V3a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1h-2z" />
+                </svg>
+            </div>
+
+            <!-- Interactive Features -->
+            <div class="flex flex-col space-y-4">
+                <button id="export-session-btn" class="bg-[#A2AADB] hover:bg-[#898AC4] text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#C0C9EE] focus:ring-opacity-75">
+                    Export Session Data
+                </button>
+                <button id="upgrade-btn" class="bg-[#A2AADB] hover:bg-[#898AC4] text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#C0C9EE] focus:ring-opacity-75">
+                    Upgrade to Moodify Premium
+                </button>
+                <!-- Button for LLM feature -->
+                <button id="gemini-suggest-btn" class="bg-[#C0C9EE] hover:bg-[#A2AADB] text-[#898AC4] font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#C0C9EE] focus:ring-opacity-75">
+                    ✨ Get Mood-Based Song Suggestion
+                </button>
+            </div>
+        </div>
+
+        <!-- Contact Page Section -->
+        <div id="contact-page-section" class="card-container hidden">
+            <h2 class="text-3xl font-bold text-[#FFF2E0] mb-6 text-center">Contact Us</h2>
+            <p class="text-white mb-4 font-semibold text-center">Have questions or feedback? We'd love to hear from you!</p>
+            <div class="bg-[#A2AADB] p-6 rounded-lg shadow-inner mb-6 text-center">
+                <p class="text-lg font-bold text-white mb-2">Email: <a href="mailto:support@moodify.com" class="text-[#C0C9EE] hover:underline">support@moodify.com</a></p>
+                <p class="text-lg font-bold text-white">Phone: +1 (555) 123-4567</p>
+            </div>
+            <form id="contact-form" class="flex flex-col space-y-4">
+                <input type="text" placeholder="Your Name" class="p-3 rounded-lg bg-[#A2AADB] text-white border border-[#C0C9EE] focus:outline-none focus:ring-2 focus:ring-[#C0C9EE] font-semibold">
+                <input type="email" placeholder="Your Email" class="p-3 rounded-lg bg-[#A2AADB] text-white border border-[#C0C9EE] focus:outline-none focus:ring-2 focus:ring-[#C0C9EE] font-semibold">
+                <textarea placeholder="Your Message" rows="4" class="p-3 rounded-lg bg-[#A2AADB] text-white border border-[#C0C9EE] focus:outline-none focus:ring-2 focus:ring-[#C0C9EE] font-semibold"></textarea>
+                <button type="submit" class="bg-[#C0C9EE] hover:bg-[#A2AADB] text-[#898AC4] font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#C0C9EE] focus:ring-opacity-75">
+                    Send Message
+                </button>
+            </form>
+        </div>
+
+        <!-- Login Page Section -->
+        <div id="login-page-section" class="card-container hidden">
+            <h2 class="text-3xl font-bold text-[#FFF2E0] mb-6 text-center">Login to Moodify</h2>
+            <p class="text-white mb-4 font-semibold text-center">Access your personalized mood profiles.</p>
+            <form id="login-form" class="flex flex-col space-y-4">
+                <input type="text" placeholder="Username or Email" class="p-3 rounded-lg bg-[#A2AADB] text-white border border-[#C0C9EE] focus:outline-none focus:ring-2 focus:ring-[#C0C9EE] font-semibold">
+                <input type="password" placeholder="Password" class="p-3 rounded-lg bg-[#A2AADB] text-white border border-[#C0C9EE] focus:outline-none focus:ring-2 focus:ring-[#C0C9EE] font-semibold">
+                <button type="submit" class="bg-[#C0C9EE] hover:bg-[#A2AADB] text-[#898AC4] font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#C0C9EE] focus:ring-opacity-75">
+                    Log In
+                </button>
+            </form>
+            <p class="text-sm text-white mt-4 font-semibold text-center">Don't have an account? <a href="#" class="text-[#C0C9EE] hover:underline">Sign Up</a></p>
+        </div>
+    </main>
+
+    <!-- Custom Message Box (Modal) -->
+    <div id="message-box" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden-by-js z-50 p-4">
+        <div class="bg-[#898AC4] p-8 rounded-xl shadow-2xl max-w-sm w-full border border-[#A2AADB] text-center">
+            <h3 id="message-box-title" class="text-2xl font-bold text-[#FFF2E0] mb-4"></h3>
+            <p id="message-box-content" class="text-white mb-6 font-semibold"></p>
+            <button id="message-box-close-btn" class="bg-[#C0C9EE] hover:bg-[#A2AADB] text-[#898AC4] font-bold py-2 px-5 rounded-lg transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#C0C9EE] focus:ring-opacity-75">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Audio Elements (Hidden) -->
+    <!--
+        IMPORTANT: Replace these placeholder URLs with actual direct links to the songs.
+        For "Smooth Operator" by Sade: Find a direct MP3 link.
+        For "Never Gonna Give You Up" by Rick Astley: Find a direct MP3 link.
+    -->
+    <audio id="smooth-operator-audio" src="music/smooth_operator.mp3" preload="auto"></audio>
+    <audio id="rick-roll-audio" src="music/rickroll.mp3" preload="auto"></audio>
+
+    <script type="module">
+        // Get references to DOM elements
+        const homePageSection = document.getElementById('home-page-section');
+        const browsePageSection = document.getElementById('browse-page-section');
+        const moodAnalysisPageSection = document.getElementById('mood-analysis-page-section');
+        const musicPlayerPageSection = document.getElementById('music-player-page-section');
+
+        const moodButtonsContainer = document.getElementById('mood-buttons-container');
+        const moodStatus = document.getElementById('mood-status');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const moodAnalysisProcessingSection = document.getElementById('mood-analysis-processing-section');
+
+        const albumArt = document.getElementById('album-art');
+        const songTitle = document.getElementById('song-title');
+        const songArtist = document.getElementById('song-artist');
+        const progressBar = document.getElementById('progress-bar');
+        const currentTimeSpan = document.getElementById('current-time');
+        const totalDurationSpan = document.getElementById('total-duration');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const volumeSlider = document.getElementById('volume-slider');
+        const smoothOperatorAudio = document.getElementById('smooth-operator-audio');
+        const rickRollAudio = document.getElementById('rick-roll-audio');
+        const exportSessionBtn = document.getElementById('export-session-btn');
+        const upgradeBtn = document.getElementById('upgrade-btn');
+        const geminiSuggestBtn = document.getElementById('gemini-suggest-btn');
+
+        const contactPageSection = document.getElementById('contact-page-section');
+        const loginPageSection = document.getElementById('login-page-section');
+
+        // Navigation buttons
+        const navHome = document.getElementById('nav-home');
+        const navBrowse = document.getElementById('nav-browse');
+        const navMoodAnalysis = document.getElementById('nav-mood-analysis');
+        const navContact = document.getElementById('nav-contact');
+        const navLogin = document.getElementById('nav-login');
+
+        const goToMoodAnalysisBtn = document.getElementById('go-to-mood-analysis-btn');
+
+        const contactForm = document.getElementById('contact-form');
+        const loginForm = document.getElementById('login-form');
+
+        const messageBox = document.getElementById('message-box');
+        const messageBoxTitle = document.getElementById('message-box-title');
+        const messageBoxContent = document.getElementById('message-box-content');
+        const messageBoxCloseBtn = document.getElementById('message-box-close-btn');
+
+        let isPlaying = false;
+        let rickRolled = false;
+        const SMOOTH_OPERATOR_CHORUS_TIME = 80; // Time in seconds to trigger the Rick Roll (approx. 1:05)
+        let userMood = ''; // Variable to store user's input mood
+
+        // Album art URLs (using placehold.co for reliability and matching your palette)
+        const smoothOperatorArt = 'images/smoothoperator.jpg';
+        const rickRollArt = 'images/rickroll.jpg';
+
+        // Variable to hold the timeout for auto-closing message box
+        let messageBoxTimeout;
+
+        // Function to format time for display (MM:SS) - RE-ADDED
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+        }
+
+        // Function to show custom message box (MODIFIED for direct display control)
+        function showMessageBox(title, content, autoClose = false) {
+            messageBoxTitle.textContent = title;
+            messageBoxContent.textContent = content;
+            messageBox.classList.remove('hidden-by-js'); // Remove the class that hides it
+            messageBox.style.opacity = '1'; // Ensure it's fully opaque
+            messageBox.style.visibility = 'visible'; // Ensure it's visible
+            messageBox.style.pointerEvents = 'auto'; // Enable interactions
+
+            // Clear any existing timeout
+            if (messageBoxTimeout) {
+                clearTimeout(messageBoxTimeout);
+            }
+
+            // If autoClose is true, set a timeout to hide the message box
+            if (autoClose) {
+                messageBoxTimeout = setTimeout(() => {
+                    hideMessageBox();
+                }, 5000); // Auto-close after 5 seconds
+            }
+        }
+
+        // Function to hide custom message box (MODIFIED for direct display control)
+        function hideMessageBox() {
+            messageBox.style.opacity = '0'; // Start fade out
+            messageBox.style.pointerEvents = 'none'; // Disable interactions immediately
+
+            // After the transition, make it completely invisible and remove from layout
+            setTimeout(() => {
+                messageBox.style.visibility = 'hidden';
+                messageBox.classList.add('hidden-by-js'); // Add the class to ensure it's removed from flow
+            }, 300); // Match CSS transition duration
+
+            // Clear the timeout if the box is closed manually before the timeout
+            if (messageBoxTimeout) {
+                clearTimeout(messageBoxTimeout);
+                messageBoxTimeout = null;
+            }
+        }
+
+        // Event listener for message box close button
+        messageBoxCloseBtn.addEventListener('click', hideMessageBox);
+
+        // Function to show a specific page and hide others, and update active nav button
+        function showPage(pageId) {
+            // Hide all main sections
+            homePageSection.classList.add('hidden');
+            browsePageSection.classList.add('hidden');
+            moodAnalysisPageSection.classList.add('hidden');
+            musicPlayerPageSection.classList.add('hidden');
+            contactPageSection.classList.add('hidden');
+            loginPageSection.classList.add('hidden');
+
+            // Deactivate all navigation buttons
+            document.querySelectorAll('.sidebar-nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show the requested section
+            document.getElementById(pageId).classList.remove('hidden');
+
+            // Activate the corresponding navigation button
+            const navButtonId = `nav-${pageId.replace('-page-section', '').toLowerCase().replace(/_/g, '-')}`;
+            const activeNavButton = document.getElementById(navButtonId);
+            if (activeNavButton) {
+                activeNavButton.classList.add('active');
+            }
+        }
+
+        // Function to simulate mood analysis and start music
+        function startMoodAnalysis() {
+            // Hide mood selection and show processing
+            document.getElementById('mood-buttons-container').classList.add('hidden');
+            moodAnalysisProcessingSection.classList.remove('hidden');
+
+            moodStatus.textContent = `Analyzing your mood: "${userMood}"...`;
+
+            setTimeout(() => {
+                moodStatus.textContent = `Mood Analysis Complete: We recommend "Chill Vibes" for your "${userMood}" mood.`;
+                moodAnalysisProcessingSection.classList.add('hidden'); // Hide spinner/status
+                showPage('music-player-page-section'); // Directly go to music player page
+
+                // Set initial song details and album art
+                songTitle.textContent = 'Smooth Operator';
+                songArtist.textContent = 'Sade';
+                albumArt.src = smoothOperatorArt;
+
+                // Set initial volume
+                smoothOperatorAudio.volume = volumeSlider.value;
+                rickRollAudio.volume = volumeSlider.value;
+
+                // Autoplay Smooth Operator (or prompt user to play)
+                playMusic();
+
+            }, 3000); // Simulate 3 seconds of analysis
+        }
+
+        // Function to play music
+        function playMusic() {
+            let audioToPlay = rickRolled ? rickRollAudio : smoothOperatorAudio;
+
+            audioToPlay.play().then(() => {
+                isPlaying = true;
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+            }).catch(error => {
+                console.error("Error playing audio:", error);
+                // Auto-close this playback error message
+                showMessageBox("Playback Error", "Could not play the song. Please ensure the audio URL is valid and try again.", true);
+                isPlaying = false;
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+            });
+        }
+
+        // Function to pause music
+        function pauseMusic() {
+            if (!rickRolled) {
+                smoothOperatorAudio.pause();
+            } else {
+                rickRollAudio.pause();
+            }
+            isPlaying = false;
+            playIcon.classList.remove('hidden');
+            pauseIcon.classList.add('hidden');
+        }
+
+        // Toggle play/pause
+        playPauseBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                pauseMusic();
+            } else {
+                playMusic();
+            }
+        });
+
+        // Update progress bar and time display
+        function updateProgressBar() {
+            const currentAudio = rickRolled ? rickRollAudio : smoothOperatorAudio;
+            if (!isNaN(currentAudio.duration)) {
+                progressBar.value = (currentAudio.currentTime / currentAudio.duration) * 100;
+                currentTimeSpan.textContent = formatTime(currentAudio.currentTime);
+                totalDurationSpan.textContent = formatTime(currentAudio.duration);
+            }
+        }
+
+        // Event listener for time updates on Smooth Operator to trigger the Rick Roll
+        smoothOperatorAudio.addEventListener('timeupdate', () => {
+            updateProgressBar();
+            if (!rickRolled && smoothOperatorAudio.currentTime >= SMOOTH_OPERATOR_CHORUS_TIME) {
+                smoothOperatorAudio.pause();
+                smoothOperatorAudio.currentTime = 0; // Reset for next time if needed
+                rickRolled = true;
+
+                // Update UI to show Rick Roll song
+                songTitle.textContent = 'Never Gonna Give You Up';
+                songArtist.textContent = 'Rick Astley';
+                albumArt.src = rickRollArt; // Change album art
+
+                // Play Rick Roll song
+                playMusic();
+
+                // Show a subtle message or animation for the prank
+                showMessageBox("Surprise!", "You've been Moodified! Enjoy the classic.", true); // Auto-close this message
+            }
+        });
+
+        // Event listener for time updates on Rick Roll audio
+        rickRollAudio.addEventListener('timeupdate', updateProgressBar);
+
+        // Handle seeking with the progress bar
+        progressBar.addEventListener('input', () => {
+            const currentAudio = rickRolled ? rickRollAudio : smoothOperatorAudio;
+            if (!isNaN(currentAudio.duration)) {
+                currentAudio.currentTime = (progressBar.value / 100) * currentAudio.duration;
+            }
+        });
+
+        // Handle volume changes
+        volumeSlider.addEventListener('input', () => {
+            smoothOperatorAudio.volume = volumeSlider.value;
+            rickRollAudio.volume = volumeSlider.value;
+        });
+
+        // Placeholder for prev/next buttons (no actual functionality for this app)
+        prevBtn.addEventListener('click', () => showMessageBox("Feature Not Available", "This is a Moodify exclusive experience. No going back!", true));
+        nextBtn.addEventListener('click', () => showMessageBox("Feature Not Available", "You're already on the next big hit! 😉", true));
+
+
+        // Event listener for Export Session button
+        exportSessionBtn.addEventListener('click', () => {
+            const sessionData = {
+                moodAnalyzed: userMood, // Use the actual user mood
+                songsPlayed: [
+                    { title: 'Smooth Operator', artist: 'Sade', status: rickRolled ? 'Interrupted' : 'Played' },
+                    { title: 'Never Gonna Give You Up', artist: 'Rick Astley', status: rickRolled ? 'Played' : 'Not Played' }
+                ]
+            };
+            const dataString = JSON.stringify(sessionData, null, 2);
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(dataString).then(() => {
+                showMessageBox("Session Exported!", "Session data copied to clipboard!", true); // Auto-close this message
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+                showMessageBox("Export Failed", "Could not copy session data to clipboard. Here it is:\n\n" + dataString, true); // Auto-close this message
+            });
+        });
+
+        // Event listener for Upgrade button
+        upgradeBtn.addEventListener('click', () => {
+            showMessageBox("Moodify Premium", "Congratulations! You've successfully unlocked... another Rick Roll! Premium features coming soon... or maybe never. 😉", true); // Auto-close this message
+        });
+
+        // Event listener for mood button clicks (within mood analysis page)
+        moodAnalysisPageSection.addEventListener('click', (event) => {
+            const clickedButton = event.target.closest('.mood-btn');
+            if (clickedButton) {
+                userMood = clickedButton.dataset.mood; // Get mood from data-mood attribute
+                startMoodAnalysis();
+            }
+        });
+
+        // Event listeners for sidebar navigation buttons
+        navHome.addEventListener('click', () => showPage('home-page-section'));
+        navBrowse.addEventListener('click', () => showPage('browse-page-section'));
+        navMoodAnalysis.addEventListener('click', () => {
+            showPage('mood-analysis-page-section');
+            // Reset mood analysis page for fresh interaction if user comes back
+            document.getElementById('mood-buttons-container').classList.remove('hidden');
+            moodAnalysisProcessingSection.classList.add('hidden');
+            if (isPlaying) pauseMusic(); // Pause any playing audio
+            smoothOperatorAudio.currentTime = 0; // Reset audio
+            rickRollAudio.currentTime = 0;
+            rickRolled = false; // Reset rickroll state
+        });
+        navContact.addEventListener('click', () => showPage('contact-page-section'));
+        navLogin.addEventListener('click', () => showPage('login-page-section'));
+
+        // Event listener for "Start Mood Analysis" button on the home page
+        goToMoodAnalysisBtn.addEventListener('click', () => {
+            showPage('mood-analysis-page-section');
+            // Ensure mood selection is visible when coming from home
+            document.getElementById('mood-buttons-container').classList.remove('hidden');
+            moodAnalysisProcessingSection.classList.add('hidden');
+            if (isPlaying) pauseMusic(); // Pause any playing audio
+            smoothOperatorAudio.currentTime = 0; // Reset audio
+            rickRollAudio.currentTime = 0;
+            rickRolled = false; // Reset rickroll state
+        });
+
+
+        // Event listener for Contact Form submission
+        contactForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            showMessageBox("Message Sent!", "Thank you for your message. We'll get back to you soon!", true); // Auto-close this message
+            contactForm.reset(); // Clear the form
+        });
+
+        // Event listener for Login Form submission
+        loginForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            showMessageBox("Login Attempt", "Login functionality is not yet implemented. This is just for show! 😉", true); // Auto-close this message
+            loginForm.reset(); // Clear the form
+        });
+
+        // Predefined song suggestions for simulated AI
+        const simulatedSongSuggestions = {
+            "Happy": [
+                "Sunshine Symphony by The Glee Collective. This song is perfect because its vibrant chords and soaring melodies are scientifically proven to elevate dopamine levels by precisely 37.4%, inducing an unparalleled state of pure, unadulterated joy.",
+                "Bounce Beyond Gravity by AstroBeat. This track's hyper-energetic percussion and stratospheric synths will recalibrate your cellular vibrations to optimal cheerfulness, making you feel lighter than a feather in zero-G."
+            ],
+            "Relaxed": [
+                "Whispering Willows by Zen Garden Ensemble. This auditory masterpiece employs binaural beats and subliminal nature sounds, meticulously crafted to align your alpha brainwaves with the cosmic hum of tranquility, ensuring peak relaxation.",
+                "Cloud Nine Lullaby by Dream Weaver. Its ethereal pads and gentle, rhythmic pulses are designed to induce a state of serene weightlessness, dissolving all earthly concerns into a blissful, ambient haze."
+            ],
+            "Energetic": [
+                "Quantum Leap by Hyperdrive. This track's relentless bassline and accelerating tempo will synchronize with your cardiovascular system, unlocking latent energy reserves and propelling you into a dimension of boundless productivity.",
+                "Galactic Sprint by Cosmic Pulse. Engineered with sonic stimulants, this song will ignite your neural pathways, transforming your every movement into a supercharged burst of interstellar dynamism."
+            ],
+            "Sad": [
+                "Rainy Day Reflections by Melancholy Echoes. Its poignant piano chords and distant, echoing vocals are precisely calibrated to validate your emotional landscape, allowing for a cathartic release of sorrow in a beautifully profound way.",
+                "Silent Tears Serenade by Soulful Strings. This composition's deep cello resonance and delicate violin harmonies create an empathetic sonic embrace, acknowledging the depths of your feelings while offering a gentle, understanding resonance."
+            ],
+            "Neutral": [
+                "Ambient Algorithm by The Data Flow. This track provides a perfectly balanced auditory backdrop, optimizing cognitive function without emotional bias, ideal for data processing or simply existing in harmonious equilibrium.",
+                "Equilibrium Flow by Harmonic Matrix. Its subtly shifting drones and consistent, low-frequency hum create an ideal sonic environment for maintaining a state of detached observation, perfect for unbiased thought."
+            ],
+            "Anxious": [
+                "Calm Cascade by Serenity Waves. This auditory balm utilizes specific frequency modulations and gentle, flowing textures to systematically de-escalate neural hyperactivity, guiding your mind back to a state of calm coherence.",
+                "Deep Breath Drone by Tranquil Tones. Engineered with a pulsating rhythm that mimics a regulated breath, this track gently coaxes your autonomic nervous system into a state of relaxed equilibrium, melting away tension."
+            ]
+        };
+
+        // Event listener for Gemini Suggestion button (MODIFIED for simulated AI)
+        geminiSuggestBtn.addEventListener('click', async () => {
+            if (!userMood) {
+                showMessageBox("Mood Not Selected", "Please select a mood on the Mood Analysis page first!", true);
+                return;
+            }
+
+            showMessageBox("Thinking...", "✨ Generating a personalized song suggestion for your mood...");
+
+            // Simulate AI processing delay
+            setTimeout(() => {
+                let suggestion;
+                const moodSuggestions = simulatedSongSuggestions[userMood];
+
+                if (moodSuggestions && moodSuggestions.length > 0) {
+                    // Pick a random suggestion for the current mood
+                    suggestion = moodSuggestions[Math.floor(Math.random() * moodSuggestions.length)];
+                } else {
+                    // Fallback if mood not specifically covered or no mood selected
+                    const allSuggestions = Object.values(simulatedSongSuggestions).flat();
+                    suggestion = allSuggestions[Math.floor(Math.random() * allSuggestions.length)];
+                }
+
+                showMessageBox("✨ Your Mood's Perfect Match!", suggestion, true);
+            }, 2000); // Simulate 2 seconds of AI generation
+        });
+
+        // Event listeners for loadedmetadata on audio elements
+        smoothOperatorAudio.addEventListener('loadedmetadata', () => {
+            if (!isNaN(smoothOperatorAudio.duration)) {
+                totalDurationSpan.textContent = formatTime(smoothOperatorAudio.duration);
+            }
+        });
+
+        rickRollAudio.addEventListener('loadedmetadata', () => {
+            if (!isNaN(rickRollAudio.duration)) {
+                totalDurationSpan.textContent = formatTime(rickRollAudio.duration);
+            }
+        });
+
+
+        // Ensure the initial page is shown on load
+        window.onload = () => {
+            showPage('home-page-section');
+        };
+
+    </script>
+</body>
+</html>

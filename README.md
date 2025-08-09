@@ -70,13 +70,9 @@ No Backend: This app runs entirely in your web browser. It doesn't save your inf
 <img width="3188" height="1202" alt="frame (3)" src="images/diagram.png" />
 
 
-# Additional Demos
-[Add any extra demo materials/links]
-
 ## Team Contributions
-- [Name 1]: [Specific contributions]
-- [Name 2]: [Specific contributions]
-- [Name 3]: [Specific contributions]
+- Nathasha Vipin: Frontend development
+- Navdha Vasanth: Idea and UML Design
 
 ---
 Made with ❤️ at TinkerHub Useless Projects 

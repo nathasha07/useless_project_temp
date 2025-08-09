@@ -58,35 +58,17 @@ Tools & Libraries:
 No Backend: This app runs entirely in your web browser. It doesn't save your information on a server or connect to complex online systems. It's all about the fun happening right on your screen!
 
 
-### Implementation
-For Software:
-# Installation
-[commands]
-
-# Run
-[commands]
-
-### Project Documentation
-For Software:
 
 # Screenshots (Add at least 3)
-![Screenshot1](Add screenshot 1 here with proper name)
-*Add caption explaining what this shows*
-
-![Screenshot2](Add screenshot 2 here with proper name)
-*Add caption explaining what this shows*
-
-![Screenshot3](Add screenshot 3 here with proper name)
-*Add caption explaining what this shows*
+<img width="3188" height="1202" alt="frame (3)" src="ss/home.png" />
+<img width="3188" height="1202" alt="frame (3)" src="ss/moodanalysis.png" />
+<img width="3188" height="1202" alt="frame (3)" src="ss/player.png" />
+<img width="3188" height="1202" alt="frame (3)" src="ss/player2.png" />
+<img width="3188" height="1202" alt="frame (3)" src="ss/suggestion.png" />
 
 # Diagrams
 <img width="3188" height="1202" alt="frame (3)" src="images/diagram.png" />
 
-
-### Project Demo
-# Video
-[Add your demo video link here]
-*Explain what the video demonstrates*
 
 # Additional Demos
 [Add any extra demo materials/links]
